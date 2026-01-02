@@ -99,14 +99,34 @@ export default function Home() {
           <div style={{ marginTop: 8, opacity: 0.85 }}>
             This is the x402 challenge returned by the API:
           </div>
-          <pre style={{ marginTop: 10, whiteSpace: "pre-wrap", fontSize: 12 }}>{challenge}</pre>
+          <pre
+            style={{
+              marginTop: 10,
+              whiteSpace: "pre-wrap",
+              fontSize: 12,
+              maxWidth: "100%",
+              overflowWrap: "anywhere",
+              wordBreak: "break-word",
+            }}
+          >
+            {challenge}
+          </pre>
         </div>
       )}
 
       {result && (
         <div style={{ marginTop: 16, padding: 12, border: "1px solid #ddd", borderRadius: 12 }}>
           <div style={{ fontWeight: 700 }}>Result</div>
-          <pre style={{ marginTop: 10, whiteSpace: "pre-wrap", fontSize: 12 }}>
+          <pre
+            style={{
+              marginTop: 10,
+              whiteSpace: "pre-wrap",
+              fontSize: 12,
+              maxWidth: "100%",
+              overflowWrap: "anywhere",
+              wordBreak: "break-word",
+            }}
+          >
             {typeof result === "string" ? result : JSON.stringify(result, null, 2)}
           </pre>
         </div>
@@ -114,7 +134,16 @@ export default function Home() {
 
       <div style={{ marginTop: 20 }}>
         <div style={{ fontWeight: 700 }}>Logs</div>
-        <pre style={{ marginTop: 10, whiteSpace: "pre-wrap", fontSize: 12 }}>
+        <pre
+          style={{
+            marginTop: 10,
+            whiteSpace: "pre-wrap",
+            fontSize: 12,
+            maxWidth: "100%",
+            overflowWrap: "anywhere",
+            wordBreak: "break-word",
+          }}
+        >
           {logs.join("\n")}
         </pre>
       </div>

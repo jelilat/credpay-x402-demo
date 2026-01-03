@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Step = "idle" | "calling" | "blocked" | "paying" | "success" | "error";
 
@@ -9,6 +9,9 @@ export default function Home() {
   const [logs, setLogs] = useState<string[]>([]);
   const [result, setResult] = useState<any>(null);
   const [challenge, setChallenge] = useState<any>(null);
+  const [credpaySucceeded, setCredpaySucceeded] = useState(false);
+  const [payerAddress, setPayerAddress] = useState<string | null>(null);
+  const [payerExplorerUrl, setPayerExplorerUrl] = useState<string | null>(null);
 
   const premiumUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/api/premium`;
 
@@ -16,10 +19,23 @@ export default function Home() {
     setLogs((l) => [...l, `[${new Date().toLocaleTimeString()}] ${msg}`]);
   }
 
+  useEffect(() => {
+    // Fetch public payer metadata for the "View transaction" link.
+    (async () => {
+      const res = await fetch("/api/credpay", { method: "GET" }).catch(() => null);
+      if (!res || !res.ok) return;
+      const data = (await res.json().catch(() => null)) as any;
+      if (!data) return;
+      if (typeof data.payerAddress === "string") setPayerAddress(data.payerAddress);
+      if (typeof data.explorerUrl === "string") setPayerExplorerUrl(data.explorerUrl);
+    })();
+  }, []);
+
   async function callPremium() {
     setStep("calling");
     setResult(null);
     setChallenge(null);
+    setCredpaySucceeded(false);
     log("Calling x402 protected API...");
 
     const res = await fetch("/api/premium");
@@ -46,6 +62,7 @@ export default function Home() {
 
   async function continueWithCredpay() {
     setStep("paying");
+    setCredpaySucceeded(false);
     log("Requesting Credpay credit, paying x402, and retrying...");
 
     const res = await fetch("/api/credpay", {
@@ -65,6 +82,7 @@ export default function Home() {
     const data = await res.json();
     log("Success. Premium response returned.");
     setResult(data);
+    setCredpaySucceeded(true);
     setStep("success");
   }
 
@@ -117,6 +135,14 @@ export default function Home() {
       {result && (
         <div style={{ marginTop: 16, padding: 12, border: "1px solid #ddd", borderRadius: 12 }}>
           <div style={{ fontWeight: 700 }}>Result</div>
+          {credpaySucceeded && payerExplorerUrl && (
+            <div style={{ marginTop: 8, fontSize: 12 }}>
+              <a href={payerExplorerUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>
+                View transaction
+              </a>
+              {payerAddress ? <span style={{ opacity: 0.75 }}> (payer: {payerAddress})</span> : null}
+            </div>
+          )}
           <pre
             style={{
               marginTop: 10,

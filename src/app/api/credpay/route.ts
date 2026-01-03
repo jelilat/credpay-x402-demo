@@ -3,6 +3,26 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 /**
+ * GET /api/credpay
+ * Returns public metadata needed by the client UI (e.g. where to view settlement activity).
+ */
+export async function GET() {
+  const fromWallet = process.env.CREDPAY_PAYER_WALLET;
+  if (!fromWallet) {
+    return NextResponse.json({ error: "Missing CREDPAY_PAYER_WALLET" }, { status: 500 });
+  }
+
+  // This demo settles on Base Sepolia (chainId 84532).
+  const explorerUrl = `https://sepolia.basescan.org/address/${fromWallet}`;
+
+  return NextResponse.json({
+    payerAddress: fromWallet,
+    explorerUrl,
+    network: "base-sepolia",
+  });
+}
+
+/**
  * POST /api/credpay
  * Body: { url: string, method?: "GET" | "POST" ... }
  *
